@@ -1,9 +1,13 @@
 {
   "name": "vfile-is",
   "version": "1.0.1",
-  "description": "Check if a file passes a test",
+  "description": "vfile utility to check if a vfile passes a test",
   "license": "MIT",
   "keywords": [
+    "vfile",
+    "vfile-util",
+    "util",
+    "utility",
     "virtual",
     "file",
     "text",
