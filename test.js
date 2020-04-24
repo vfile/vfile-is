@@ -4,7 +4,7 @@ var test = require('tape')
 var vfile = require('to-vfile')
 var is = require('.')
 
-test('vfile-is', function(t) {
+test('vfile-is', function (t) {
   var empty = null
   var file = vfile()
   var index = vfile('index.js')
@@ -44,7 +44,7 @@ test('vfile-is', function(t) {
   t.ok(is(readme, {stem: null}), 'should ignore nully specs')
 
   t.throws(
-    function() {
+    function () {
       is(readme, {stem: 1})
     },
     /^Error: Invalid spec `1`, expected `boolean`, `string`, or `object`/,
@@ -56,7 +56,7 @@ test('vfile-is', function(t) {
   t.notOk(is(readme, ['.js', index]), 'should support a list (#3)')
 
   t.throws(
-    function() {
+    function () {
       is(readme, 1)
     },
     /^Error: Expected function, string, array, or object as test/,
