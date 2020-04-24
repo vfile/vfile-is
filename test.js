@@ -41,7 +41,7 @@ test('vfile-is', function (t) {
   t.ok(is(readme, {stem: true}), 'should support a spec (#9)')
   t.ok(is(readme, {missing: false}), 'should support a spec (#10)')
   t.notOk(is(readme, {stem: false}), 'should support a spec (#11)')
-  t.ok(is(readme, {stem: null}), 'should ignore nully specs')
+  t.ok(is(readme, {stem: null}), 'should ignore nullish specs')
 
   t.throws(
     function () {
