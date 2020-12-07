@@ -106,9 +106,9 @@ abide by its terms.
 
 <!-- Definitions -->
 
-[build-badge]: https://img.shields.io/travis/vfile/vfile-is.svg
+[build-badge]: https://github.com/vfile/vfile-is/workflows/main/badge.svg
 
-[build]: https://travis-ci.org/vfile/vfile-is
+[build]: https://github.com/vfile/vfile-is/actions
 
 [coverage-badge]: https://img.shields.io/codecov/c/github/vfile/vfile-is.svg
 
