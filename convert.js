@@ -28,7 +28,6 @@ function matchFactory(test) {
   var match = new Minimatch(test)
   var sets = match.set
   var head = sets[0]
-  var length = head.length
   var magic = false
   var index = -1
 
@@ -36,7 +35,7 @@ function matchFactory(test) {
   if (sets.length > 1) {
     magic = true
   } else {
-    while (++index < length) {
+    while (++index < head.length) {
       if (typeof head[index] !== 'string') {
         magic = true
         break
@@ -110,7 +109,6 @@ function specFactory(test) {
 
 function anyFactory(tests) {
   var checks = convertAll(tests)
-  var length = checks.length
 
   return matches
 
@@ -118,7 +116,7 @@ function anyFactory(tests) {
     var index = -1
 
     if (ok(file)) {
-      while (++index < length) {
+      while (++index < checks.length) {
         if (checks[index](file)) {
           return true
         }
@@ -131,10 +129,9 @@ function anyFactory(tests) {
 
 function convertAll(tests) {
   var results = []
-  var length = tests.length
   var index = -1
 
-  while (++index < length) {
+  while (++index < tests.length) {
     results[index] = convert(tests[index])
   }
 
