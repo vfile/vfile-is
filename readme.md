@@ -45,11 +45,11 @@ is(vfile('index.js'), {stem: {suffix: 'me'}}) // => false
 
 ## API
 
-### `is(file, test)`
+### `is(file, test?)`
 
 Check if `file` passes the given test.
 
-Converts `test` to an [assertion][], and calls that assertion with `file`.
+Converts `test` to an [assertion][] and calls that assertion with `file`.
 If you’re doing a lot of checks, use `convert` (`is.convert` or
 `require('vfile-is/convert')` directly).
 
@@ -72,8 +72,7 @@ An [assertion][].
 When given something, returns whether that value is a [vfile][] and whether it
 passes the bound test.
 
-*   If there is no bound test (it’s null or undefined), makes sure `file` is a
-    [vfile][]
+*   If there is no bound test (it’s nullish), makes sure `file` is a [vfile][]
 *   If the bound test is a glob string, checks if that glob matches `file.path`
 *   If the bound test is a normal string, checks if that is `file.basename` or
     `file.extname`
