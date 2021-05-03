@@ -12,6 +12,9 @@ Check if a [`vfile`][vfile] passes a test.
 
 ## Install
 
+This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c):
+Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
+
 [npm][]:
 
 ```sh
@@ -21,37 +24,39 @@ npm install vfile-is
 ## Use
 
 ```js
-var vfile = require('to-vfile')
-var is = require('vfile-is')
+import {toVFile} from 'to-vfile'
+import {is} from 'vfile-is'
 
 is(null, '.js') // => false
 is({}, '.js') // => false
 
-is(vfile('index.js'), '.js') // => true
-is(vfile('index.js'), '.md') // => false
-is(vfile('index.js'), 'index.js') // => true
-is(vfile('index.js'), 'readme.md') // => false
-is(vfile('index.js'), '*.js') // => true
-is(vfile('index.js'), '*.md') // => false
+is(toVFile('index.js'), '.js') // => true
+is(toVFile('index.js'), '.md') // => false
+is(toVFile('index.js'), 'index.js') // => true
+is(toVFile('index.js'), 'readme.md') // => false
+is(toVFile('index.js'), '*.js') // => true
+is(toVFile('index.js'), '*.md') // => false
 
-is(vfile('index.js'), {stem: 'index'}) // => true
-is(vfile('index.js'), {stem: 'readme'}) // => false
+is(toVFile('index.js'), {stem: 'index'}) // => true
+is(toVFile('index.js'), {stem: 'readme'}) // => false
 
-is(vfile('index.js'), {stem: {prefix: 'in'}}) // => true
-is(vfile('index.js'), {stem: {prefix: 're'}}) // => false
-is(vfile('index.js'), {stem: {suffix: 'ex'}}) // => true
-is(vfile('index.js'), {stem: {suffix: 'me'}}) // => false
+is(toVFile('index.js'), {stem: {prefix: 'in'}}) // => true
+is(toVFile('index.js'), {stem: {prefix: 're'}}) // => false
+is(toVFile('index.js'), {stem: {suffix: 'ex'}}) // => true
+is(toVFile('index.js'), {stem: {suffix: 'me'}}) // => false
 ```
 
 ## API
+
+This package exports the following identifiers: `is`.
+There is no default export.
 
 ### `is(file, test?)`
 
 Check if `file` passes the given test.
 
 Converts `test` to an [assertion][] and calls that assertion with `file`.
-If you’re doing a lot of checks, use `convert` (`is.convert` or
-`require('vfile-is/convert')` directly).
+If you’re doing a lot of checks, use `convert`.
 
 ### `convert(test)`
 

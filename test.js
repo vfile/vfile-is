@@ -1,15 +1,13 @@
-'use strict'
-
-var test = require('tape')
-var vfile = require('to-vfile')
-var is = require('.')
+import test from 'tape'
+import toVFile from 'to-vfile'
+import {is} from './index.js'
 
 test('vfile-is', function (t) {
   var empty = null
-  var file = vfile()
-  var index = vfile('index.js')
-  var gitignore = vfile('.gitignore')
-  var readme = vfile('readme.md')
+  var file = toVFile()
+  var index = toVFile('index.js')
+  var gitignore = toVFile('.gitignore')
+  var readme = toVFile('readme.md')
 
   t.ok(is(file), 'should support a missing test on a file')
   t.notOk(is(empty), 'should support a missing test with nothing')
@@ -19,7 +17,7 @@ test('vfile-is', function (t) {
   t.ok(is(index, '.js'), 'should support a extname (#1)')
   t.notOk(is(index, '.md'), 'should support a extname (#2)')
   t.ok(is(gitignore, '.gitignore'), 'should support a dotfile (#1)')
-  t.notOk(is(vfile('.gitignore'), '.npmrc'), 'should support a dotfile (#2)')
+  t.notOk(is(toVFile('.gitignore'), '.npmrc'), 'should support a dotfile (#2)')
 
   t.ok(is(index, '*.js'), 'should support a glob (#1)')
   t.notOk(is(index, '*.md'), 'should support a glob (#2)')
