@@ -1,8 +1,9 @@
 import test from 'tape'
-import toVFile from 'to-vfile'
+import {toVFile} from 'to-vfile'
 import {is} from './index.js'
 
 test('vfile-is', function (t) {
+  /** @type {null} */
   var empty = null
   var file = toVFile()
   var index = toVFile('index.js')
@@ -43,18 +44,20 @@ test('vfile-is', function (t) {
 
   t.throws(
     function () {
+      // @ts-ignore runtime.
       is(readme, {stem: 1})
     },
     /^Error: Invalid spec `1`, expected `boolean`, `string`, or `object`/,
     'should throw on invalid specs'
   )
 
-  t.notOk(is(null, ['.js', index]), 'should support a list (#1)')
-  t.ok(is(index, ['.js', index]), 'should support a list (#2)')
-  t.notOk(is(readme, ['.js', index]), 'should support a list (#3)')
+  t.notOk(is(null, ['.js', 'index.js']), 'should support a list (#1)')
+  t.ok(is(index, ['.js', 'index.js']), 'should support a list (#2)')
+  t.notOk(is(readme, ['.js', 'index.js']), 'should support a list (#3)')
 
   t.throws(
     function () {
+      // @ts-ignore runtime.
       is(readme, 1)
     },
     /^Error: Expected function, string, array, or object as test/,
@@ -63,6 +66,7 @@ test('vfile-is', function (t) {
 
   t.end()
 
+  /** @type {import('./index.js').CheckFile} */
   function isIndex(file) {
     return file.stem === 'index'
   }

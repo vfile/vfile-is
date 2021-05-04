@@ -1,35 +1,88 @@
+/**
+ * @typedef {import('vfile').VFile} VFile
+ *
+ * @typedef {null|undefined} Nullish
+ * @typedef {boolean} FieldExists
+ * @typedef {string} FieldEquality
+ * @typedef {{prefix?: string, suffix?: string}} FieldPartial
+ * @typedef {Nullish|FieldExists|FieldEquality|FieldPartial} Field
+ * @typedef {Object.<string, Field>} CheckFields
+ * @typedef {string} CheckPath
+ * @typedef {Nullish|CheckPath|CheckFile|CheckFields} CheckItem
+ * @typedef {Array.<CheckItem>} CheckList
+ * @typedef {CheckItem|CheckList} Check
+ */
+
+/**
+ * Check if a file passes a test
+ *
+ * @callback CheckFile
+ * @param {VFile} file
+ * @returns {boolean|void}
+ */
+
+/**
+ * @callback Assert
+ * @param {unknown} [file]
+ * @returns {boolean}
+ */
+
 import minimatch from 'minimatch'
 
 const Minimatch = minimatch.Minimatch
 const own = {}.hasOwnProperty
 
-export function is(file, specs) {
-  return convert(specs)(file)
+/**
+ * Check if `file` passes the given test.
+ *
+ * Converts `check` to an assertion and calls that assertion with `file`.
+ * If you’re doing a lot of checks, use `convert`.
+ *
+ * @param {VFile} file
+ * @param {Check} [check]
+ * @returns {boolean}
+ */
+export function is(file, check) {
+  return convert(check)(file)
 }
 
-export function convert(test) {
-  if (test === null || test === undefined) {
+/**
+ * Create a function (the assertion) from `check`, that when given something,
+ * returns whether that value is a vfile and whether it passes the given check.
+ *
+ * @param {Check} [check]
+ * @returns {Assert}
+ */
+export function convert(check) {
+  if (check === null || check === undefined) {
     return ok
   }
 
-  if (typeof test === 'string') {
-    return matchFactory(test)
+  if (typeof check === 'string') {
+    return matchFactory(check)
   }
 
-  if (typeof test === 'function') {
-    return one(test)
+  if (typeof check === 'function') {
+    return one(check)
   }
 
-  if (typeof test === 'object') {
-    return 'length' in test ? anyFactory(test) : specFactory(test)
+  if (typeof check === 'object') {
+    return Array.isArray(check) ? anyFactory(check) : checkFactory(check)
   }
 
   throw new Error('Expected function, string, array, or object as test')
 }
 
-function matchFactory(test) {
-  var match = new Minimatch(test)
+/**
+ * @param {CheckPath} check
+ * @returns {Assert}
+ */
+function matchFactory(check) {
+  var match = new Minimatch(check)
+  /** @type {Array.<Array.<string|RegExp>>} */
+  // type-coverage:ignore-next-line
   var sets = match.set
+  /** @type {Array.<string|RegExp>} */
   var head = sets[0]
   var magic = false
   var index = -1
@@ -48,79 +101,76 @@ function matchFactory(test) {
 
   return magic ? glob : name
 
+  /** @type {Assert} */
   function glob(file) {
     return ok(file) && match.match(file.path)
   }
 
-  // True for `index.js` w/ `.js`; `index.js` w/ `index.js`, and `.gitignore`
-  // w/ `.gitignore`
+  /**
+   * True for `index.js` w/ `.js`; `index.js` w/ `index.js`, and `.gitignore`
+   * w/ `.gitignore`
+   *
+   * @type {Assert}
+   */
   function name(file) {
-    return ok(file) && (test === file.basename || test === file.extname)
+    return ok(file) && (check === file.basename || check === file.extname)
   }
 }
 
-function specFactory(test) {
+/**
+ * @param {CheckFields} checks
+ * @returns {Assert}
+ */
+function checkFactory(checks) {
   return matches
 
+  /**
+   * @type {Assert}
+   */
   function matches(file) {
-    var spec
+    /** @type {Field} */
+    var check
+    /** @type {string} */
     var key
+    /** @type {unknown} */
     var value
 
     if (!ok(file)) {
       return false
     }
 
-    for (key in test) {
-      if (own.call(test, key)) {
-        spec = test[key]
+    for (key in checks) {
+      if (own.call(checks, key)) {
+        check = checks[key]
         value = file[key]
 
-        switch (spec) {
-          case null:
-          case undefined: {
-            break
+        if (check === null || check === undefined) {
+          continue
+        }
+
+        if (typeof check === 'boolean') {
+          if (check === !(key in file)) {
+            return false
           }
-
-          case true: {
-            if (!(key in file)) {
-              return false
-            }
-
-            break
+        } else if (typeof check === 'string') {
+          if (check !== value) {
+            return false
           }
-
-          case false: {
-            if (key in file) {
-              return false
-            }
-
-            break
+        } else if (check && typeof check === 'object') {
+          if (
+            typeof value !== 'string' ||
+            (check.prefix &&
+              value.slice(0, check.prefix.length) !== check.prefix) ||
+            (check.suffix && value.slice(-check.suffix.length) !== check.suffix)
+          ) {
+            return false
           }
-
-          default: {
-            if (typeof spec === 'string') {
-              if (spec !== value) {
-                return false
-              }
-            } else if (spec && typeof spec === 'object') {
-              if (
-                typeof value !== 'string' ||
-                (spec.prefix &&
-                  value.slice(0, spec.prefix.length) !== spec.prefix) ||
-                (spec.suffix &&
-                  value.slice(-spec.suffix.length) !== spec.suffix)
-              ) {
-                return false
-              }
-            } else {
-              throw new Error(
-                'Invalid spec `' +
-                  spec +
-                  '`, expected `boolean`, `string`, or `object`'
-              )
-            }
-          }
+        } else {
+          throw new Error(
+            'Invalid spec `' +
+              check +
+              '`, expected `boolean`, `string`, or `object`'
+          )
         }
       }
     }
@@ -129,17 +179,30 @@ function specFactory(test) {
   }
 }
 
-function anyFactory(tests) {
-  var checks = convertAll(tests)
+/**
+ * @param {CheckList} checks
+ * @returns {Assert}
+ */
+function anyFactory(checks) {
+  /** @type {Array.<Assert>} */
+  var tests = []
+  var index = -1
+
+  while (++index < checks.length) {
+    tests[index] = convert(checks[index])
+  }
 
   return matches
 
+  /**
+   * @type {Assert}
+   */
   function matches(file) {
     var index = -1
 
     if (ok(file)) {
-      while (++index < checks.length) {
-        if (checks[index](file)) {
+      while (++index < tests.length) {
+        if (tests[index](file)) {
           return true
         }
       }
@@ -149,25 +212,25 @@ function anyFactory(tests) {
   }
 }
 
-function convertAll(tests) {
-  var results = []
-  var index = -1
-
-  while (++index < tests.length) {
-    results[index] = convert(tests[index])
-  }
-
-  return results
-}
-
-function one(test) {
+/**
+ * @param {CheckFile} check
+ * @returns {Assert}
+ */
+function one(check) {
   return matches
 
+  /** @type {Assert} */
   function matches(file) {
-    return ok(file) && Boolean(test(file))
+    return ok(file) && Boolean(check(file))
   }
 }
 
+/**
+ * @param {unknown} [file]
+ * @returns {file is VFile}
+ */
 function ok(file) {
-  return Boolean(file && file.messages && file.history)
+  return Boolean(
+    file && typeof file === 'object' && 'messages' in file && 'history' in file
+  )
 }
