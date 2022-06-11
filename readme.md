@@ -8,17 +8,52 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-Check if a [`vfile`][vfile] passes a test.
+[`vfile`][vfile] utility to check if a file passes a test.
+
+## Contents
+
+*   [What is this?](#what-is-this)
+*   [When should I use this?](#when-should-i-use-this)
+*   [Install](#install)
+*   [Use](#use)
+*   [API](#api)
+    *   [`is(file, test?)`](#isfile-test)
+    *   [`convert(test)`](#converttest)
+    *   [`Spec`](#spec)
+*   [Types](#types)
+*   [Compatibility](#compatibility)
+*   [Contribute](#contribute)
+*   [License](#license)
+
+## What is this?
+
+This package is a small utility that checks that a file is a certain file.
+
+## When should I use this?
+
+Use this small utility if you find yourself repeating code for checking files.
 
 ## Install
 
-This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c):
-Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
-
-[npm][]:
+This package is [ESM only][esm].
+In Node.js (version 12.20+, 14.14+, 16.0+, or 18.0+), install with [npm][]:
 
 ```sh
 npm install vfile-is
+```
+
+In Deno with [`esm.sh`][esmsh]:
+
+```js
+import {is} from 'https://esm.sh/vfile-is@2'
+```
+
+In browsers with [`esm.sh`][esmsh]:
+
+```html
+<script type="module">
+  import {is} from 'https://esm.sh/vfile-is@2?bundle'
+</script>
 ```
 
 ## Use
@@ -48,14 +83,15 @@ is(toVFile('index.js'), {stem: {suffix: 'me'}}) // => false
 
 ## API
 
-This package exports the following identifiers: `is`.
+This package exports the identifiers `is` and `convert`.
 There is no default export.
 
 ### `is(file, test?)`
 
 Check if `file` passes the given test.
 
-Converts `test` to an [assertion][] and calls that assertion with `file`.
+Checks if `file` is a vfile, converts `test` to an [assertion][], and calls
+that assertion with `file`.
 If you’re doing a lot of checks, use `convert`.
 
 ### `convert(test)`
@@ -77,22 +113,34 @@ An [assertion][].
 When given something, returns whether that value is a [vfile][] and whether it
 passes the bound test.
 
-*   If there is no bound test (it’s nullish), makes sure `file` is a [vfile][]
-*   If the bound test is a glob string, checks if that glob matches `file.path`
-*   If the bound test is a normal string, checks if that is `file.basename` or
+*   if there is no bound test (it’s nullish), makes sure `file` is a [vfile][]
+*   if the bound test is a glob string, checks if that glob matches `file.path`
+*   if the bound test is a normal string, checks if that is `file.basename` or
     `file.extname`
-*   If the bound test is a normal object, checks if the given file matches the
-    [Spec][]
-*   If the bound test is an array, all tests in it must pass
+*   if the bound test is a normal object, checks if the given file matches the
+    [`Spec`][spec]
+*   if the bound test is an array, all tests in it must pass
 
 ### `Spec`
 
-A spec is an object describing properties to values.
-For each property in `spec`, if its value is `string`, there must be an
-equivalent property in the given file matching the value.
+A spec is an object describing fields to values.
+For each field in `spec`, if its value is `string`, there must be an equivalent
+field in the given file matching the value.
 If the value is `object`, it can have a `prefix` or `suffix` key, and the value
 in the given file must be a string, and it must start with `prefix` and/or end
 with `suffix`.
+
+## Types
+
+This package is fully typed with [TypeScript][].
+The extra types `Check`, `CheckFile`, and `Assert` are exported.
+
+## Compatibility
+
+Projects maintained by the unified collective are compatible with all maintained
+versions of Node.js.
+As of now, that is Node.js 12.20+, 14.14+, 16.0+, and 18.0+.
+Our projects sometimes work with older versions, but this is not guaranteed.
 
 ## Contribute
 
@@ -138,13 +186,19 @@ abide by its terms.
 
 [npm]: https://docs.npmjs.com/cli/install
 
-[contributing]: https://github.com/vfile/.github/blob/HEAD/contributing.md
+[esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
 
-[support]: https://github.com/vfile/.github/blob/HEAD/support.md
+[esmsh]: https://esm.sh
+
+[typescript]: https://www.typescriptlang.org
+
+[contributing]: https://github.com/vfile/.github/blob/main/contributing.md
+
+[support]: https://github.com/vfile/.github/blob/main/support.md
 
 [health]: https://github.com/vfile/.github
 
-[coc]: https://github.com/vfile/.github/blob/HEAD/code-of-conduct.md
+[coc]: https://github.com/vfile/.github/blob/main/code-of-conduct.md
 
 [license]: license
 
