@@ -35,7 +35,7 @@
     "index.js"
   ],
   "dependencies": {
-    "minimatch": "^3.0.0",
+    "minimatch": "^5.0.0",
     "vfile": "^5.0.0"
   },
   "devDependencies": {
