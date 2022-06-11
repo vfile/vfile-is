@@ -4,11 +4,11 @@ import {is} from './index.js'
 
 test('vfile-is', function (t) {
   /** @type {null} */
-  var empty = null
-  var file = toVFile()
-  var index = toVFile('index.js')
-  var gitignore = toVFile('.gitignore')
-  var readme = toVFile('readme.md')
+  const empty = null
+  const file = toVFile()
+  const index = toVFile('index.js')
+  const gitignore = toVFile('.gitignore')
+  const readme = toVFile('readme.md')
 
   t.ok(is(file), 'should support a missing test on a file')
   t.notOk(is(empty), 'should support a missing test with nothing')

@@ -6,25 +6,25 @@
  * @typedef {string} FieldEquality
  * @typedef {{prefix?: string, suffix?: string}} FieldPartial
  * @typedef {Nullish|FieldExists|FieldEquality|FieldPartial} Field
- * @typedef {Object.<string, Field>} CheckFields
+ * @typedef {Record<string, Field>} CheckFields
  * @typedef {string} CheckPath
  * @typedef {Nullish|CheckPath|CheckFile|CheckFields} CheckItem
- * @typedef {Array.<CheckItem>} CheckList
+ * @typedef {Array<CheckItem>} CheckList
  * @typedef {CheckItem|CheckList} Check
- */
-
-/**
- * Check if a file passes a test
  *
  * @callback CheckFile
+ *   Check if a file passes a custom test.
  * @param {VFile} file
+ *   File to check.
  * @returns {boolean|void}
- */
-
-/**
+ *   Whether the test passed for this file.
+ *
  * @callback Assert
+ *   Check that a file is a `vfile` and passes a test.
  * @param {unknown} [file]
+ *   Thing to check.
  * @returns {boolean}
+ *   Whether this file is a certain `vfile`.
  */
 
 import minimatch from 'minimatch'
@@ -78,14 +78,14 @@ export function convert(check) {
  * @returns {Assert}
  */
 function matchFactory(check) {
-  var match = new Minimatch(check)
-  /** @type {Array.<Array.<string|RegExp>>} */
+  const match = new Minimatch(check)
+  /** @type {Array<Array<string|RegExp>>} */
   // type-coverage:ignore-next-line
-  var sets = match.set
-  /** @type {Array.<string|RegExp>} */
-  var head = sets[0]
-  var magic = false
-  var index = -1
+  const sets = match.set
+  /** @type {Array<string|RegExp>} */
+  const head = sets[0]
+  let magic = false
+  let index = -1
 
   // Inlined from: https://github.com/isaacs/node-glob/blob/8fa8d56/glob.js#L97
   if (sets.length > 1) {
@@ -128,21 +128,17 @@ function checkFactory(checks) {
    * @type {Assert}
    */
   function matches(file) {
-    /** @type {Field} */
-    var check
-    /** @type {string} */
-    var key
-    /** @type {unknown} */
-    var value
-
     if (!ok(file)) {
       return false
     }
 
+    /** @type {string} */
+    let key
+
     for (key in checks) {
       if (own.call(checks, key)) {
-        check = checks[key]
-        value = file[key]
+        const check = checks[key]
+        const value = file[key]
 
         if (check === null || check === undefined) {
           continue
@@ -184,9 +180,9 @@ function checkFactory(checks) {
  * @returns {Assert}
  */
 function anyFactory(checks) {
-  /** @type {Array.<Assert>} */
-  var tests = []
-  var index = -1
+  /** @type {Array<Assert>} */
+  const tests = []
+  let index = -1
 
   while (++index < checks.length) {
     tests[index] = convert(checks[index])
@@ -198,7 +194,7 @@ function anyFactory(checks) {
    * @type {Assert}
    */
   function matches(file) {
-    var index = -1
+    let index = -1
 
     if (ok(file)) {
       while (++index < tests.length) {

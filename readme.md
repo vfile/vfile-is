@@ -66,7 +66,7 @@ test.
 
 ###### Parameters
 
-*   `test` (`string`, `Function`, `Spec`, or `Array.<test>`, optional)
+*   `test` (`string`, `Function`, `Spec`, or `Array<test>`, optional)
 
 ###### Returns
 
