@@ -1,23 +1,25 @@
 /**
  * @typedef {import('vfile').VFile} VFile
- *
- * @typedef {null|undefined} Nullish
- * @typedef {boolean} FieldExists
- * @typedef {string} FieldEquality
- * @typedef {{prefix?: string, suffix?: string}} FieldPartial
- * @typedef {Nullish|FieldExists|FieldEquality|FieldPartial} Field
- * @typedef {Record<string, Field>} CheckFields
- * @typedef {string} CheckPath
- * @typedef {Nullish|CheckPath|CheckFile|CheckFields} CheckItem
- * @typedef {Array<CheckItem>} CheckList
- * @typedef {CheckItem|CheckList} Check
+ */
+
+/**
+ * @typedef FieldPartial
+ *   Check the prefix and/or suffix of a field.
+ * @property {string | null | undefined} [prefix]
+ *   Prefix.
+ * @property {string | null | undefined} [suffix]
+ *   Suffix.
  *
  * @callback CheckFile
  *   Check if a file passes a custom test.
  * @param {VFile} file
  *   File to check.
- * @returns {boolean|void}
+ * @returns {boolean | null | undefined | void}
  *   Whether the test passed for this file.
+ *
+ * @typedef {Record<string, boolean | string | FieldPartial | null | undefined>} CheckFields
+ * @typedef {string | CheckFile | CheckFields | null | undefined} CheckItem
+ * @typedef {CheckItem | Array<CheckItem>} Check
  *
  * @callback Assert
  *   Check that a file is a `vfile` and passes a test.
@@ -38,9 +40,12 @@ const own = {}.hasOwnProperty
  * Converts `check` to an assertion and calls that assertion with `file`.
  * If you’re doing a lot of checks, use `convert`.
  *
- * @param {VFile | null | undefined} file
- * @param {Check | null | undefined} [check]
+ * @param {VFile | null | undefined} [file]
+ *   File to check.
+ * @param {Check} [check]
+ *   Check.
  * @returns {boolean}
+ *   Whether `file` matches `check`.
  */
 export function is(file, check) {
   return convert(check)(file)
@@ -51,7 +56,9 @@ export function is(file, check) {
  * returns whether that value is a vfile and whether it passes the given check.
  *
  * @param {Check} [check]
+ *   Check.
  * @returns {Assert}
+ *   Assertion.
  */
 export function convert(check) {
   if (check === null || check === undefined) {
@@ -74,15 +81,19 @@ export function convert(check) {
 }
 
 /**
- * @param {CheckPath} check
+ * Check a glob or basename/extname.
+ *
+ * @param {string} check
+ *   Check.
  * @returns {Assert}
+ *   Assertion.
  */
 function matchFactory(check) {
   const match = new Minimatch(check)
-  /** @type {Array<Array<string|RegExp>>} */
+  /** @type {Array<Array<string | RegExp>>} */
   // type-coverage:ignore-next-line
   const sets = match.set
-  /** @type {Array<string|RegExp>} */
+  /** @type {Array<string | RegExp>} */
   const head = sets[0]
   let magic = false
   let index = -1
@@ -119,7 +130,9 @@ function matchFactory(check) {
 
 /**
  * @param {CheckFields} checks
+ *   Check.
  * @returns {Assert}
+ *   Assertion.
  */
 function checkFactory(checks) {
   return matches
@@ -178,8 +191,12 @@ function checkFactory(checks) {
 }
 
 /**
- * @param {CheckList} checks
+ * Checks.
+ *
+ * @param {Array<CheckItem>} checks
+ *   Check.
  * @returns {Assert}
+ *   Assertion.
  */
 function anyFactory(checks) {
   /** @type {Array<Assert>} */
@@ -211,8 +228,12 @@ function anyFactory(checks) {
 }
 
 /**
+ * Check a function.
+ *
  * @param {CheckFile} check
+ *   Check.
  * @returns {Assert}
+ *   Assertion.
  */
 function one(check) {
   return matches
@@ -224,11 +245,18 @@ function one(check) {
 }
 
 /**
- * @param {unknown} [file]
- * @returns {file is VFile}
+ * Check if `value` looks like a vfile.
+ *
+ * @param {unknown} [value]
+ *   Value to check.
+ * @returns {value is VFile}
+ *   Whether `value` is a vfile.
  */
-function ok(file) {
+function ok(value) {
   return Boolean(
-    file && typeof file === 'object' && 'messages' in file && 'history' in file
+    value &&
+      typeof value === 'object' &&
+      'messages' in value &&
+      'history' in value
   )
 }
