@@ -38,8 +38,8 @@ const own = {}.hasOwnProperty
  * Converts `check` to an assertion and calls that assertion with `file`.
  * If you’re doing a lot of checks, use `convert`.
  *
- * @param {VFile} file
- * @param {Check} [check]
+ * @param {VFile | null | undefined} file
+ * @param {Check | null | undefined} [check]
  * @returns {boolean}
  */
 export function is(file, check) {
@@ -138,6 +138,8 @@ function checkFactory(checks) {
     for (key in checks) {
       if (own.call(checks, key)) {
         const check = checks[key]
+        /** @type {unknown} */
+        // @ts-expect-error: file is indexable.
         const value = file[key]
 
         if (check === null || check === undefined) {
