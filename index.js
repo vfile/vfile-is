@@ -90,15 +90,13 @@ export function convert(check) {
  */
 function matchFactory(check) {
   const match = new Minimatch(check)
-  /** @type {Array<Array<string | RegExp>>} */
-  // type-coverage:ignore-next-line
   const sets = match.set
-  /** @type {Array<string | RegExp>} */
   const head = sets[0]
   let magic = false
   let index = -1
 
-  // Inlined from: https://github.com/isaacs/node-glob/blob/8fa8d56/glob.js#L97
+  // Inlined from:
+  // <https://github.com/isaacs/node-glob/blob/3a5a70a/glob.js#L104-L112>
   if (sets.length > 1) {
     magic = true
   } else {
