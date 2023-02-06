@@ -17,9 +17,12 @@
 *   [Install](#install)
 *   [Use](#use)
 *   [API](#api)
-    *   [`is(file, test?)`](#isfile-test)
-    *   [`convert(test)`](#converttest)
-    *   [`Spec`](#spec)
+    *   [`is(file, check?)`](#isfile-check)
+    *   [`convert(check)`](#convertcheck)
+    *   [`Assert`](#assert)
+    *   [`Check`](#check)
+    *   [`CheckFields`](#checkfields)
+    *   [`CheckFile`](#checkfile)
 *   [Types](#types)
 *   [Compatibility](#compatibility)
 *   [Contribute](#contribute)
@@ -36,7 +39,7 @@ Use this small utility if you find yourself repeating code for checking files.
 ## Install
 
 This package is [ESM only][esm].
-In Node.js (version 12.20+, 14.14+, 16.0+, or 18.0+), install with [npm][]:
+In Node.js (version 14.14+ and 16.0+), install with [npm][]:
 
 ```sh
 npm install vfile-is
@@ -59,87 +62,150 @@ In browsers with [`esm.sh`][esmsh]:
 ## Use
 
 ```js
-import {toVFile} from 'to-vfile'
+import {VFile} from 'to-vfile'
 import {is} from 'vfile-is'
 
 is(null, '.js') // => false
 is({}, '.js') // => false
 
-is(toVFile('index.js'), '.js') // => true
-is(toVFile('index.js'), '.md') // => false
-is(toVFile('index.js'), 'index.js') // => true
-is(toVFile('index.js'), 'readme.md') // => false
-is(toVFile('index.js'), '*.js') // => true
-is(toVFile('index.js'), '*.md') // => false
+is(new VFile({path: 'index.js'}), '.js') // => true
+is(new VFile({path: 'index.js'}), '.md') // => false
+is(new VFile({path: 'index.js'}), 'index.js') // => true
+is(new VFile({path: 'index.js'}), 'readme.md') // => false
+is(new VFile({path: 'index.js'}), '*.js') // => true
+is(new VFile({path: 'index.js'}), '*.md') // => false
 
-is(toVFile('index.js'), {stem: 'index'}) // => true
-is(toVFile('index.js'), {stem: 'readme'}) // => false
+is(new VFile({path: 'index.js'}), {stem: 'index'}) // => true
+is(new VFile({path: 'index.js'}), {stem: 'readme'}) // => false
 
-is(toVFile('index.js'), {stem: {prefix: 'in'}}) // => true
-is(toVFile('index.js'), {stem: {prefix: 're'}}) // => false
-is(toVFile('index.js'), {stem: {suffix: 'ex'}}) // => true
-is(toVFile('index.js'), {stem: {suffix: 'me'}}) // => false
+is(new VFile({path: 'index.js'}), {stem: {prefix: 'in'}}) // => true
+is(new VFile({path: 'index.js'}), {stem: {prefix: 're'}}) // => false
+is(new VFile({path: 'index.js'}), {stem: {suffix: 'ex'}}) // => true
+is(new VFile({path: 'index.js'}), {stem: {suffix: 'me'}}) // => false
 ```
 
 ## API
 
-This package exports the identifiers `is` and `convert`.
+This package exports the identifiers [`convert`][api-convert] and
+[`is`][api-is].
 There is no default export.
 
-### `is(file, test?)`
+### `is(file, check?)`
 
-Check if `file` passes the given test.
+Check if `file` is a specific file.
 
-Checks if `file` is a vfile, converts `test` to an [assertion][], and calls
-that assertion with `file`.
+Converts `check` to an assertion and calls that assertion with `file`.
 If you’re doing a lot of checks, use `convert`.
-
-### `convert(test)`
-
-Create a function (the assertion) from `test`, that when given something,
-returns whether that value is a [vfile][] and whether it passes the given
-test.
 
 ###### Parameters
 
-*   `test` (`string`, `Function`, `Spec`, or `Array<test>`, optional)
+*   `file` (`unknown`)
+    — file to check (typically [`VFile`][vfile])
+*   `check` ([`Check`][api-check], optional)
+    — check
 
 ###### Returns
 
-An [assertion][].
+Whether `file` is a file and matches `check` (`boolean`).
 
-#### `assertion(file)`
+### `convert(check)`
 
-When given something, returns whether that value is a [vfile][] and whether it
-passes the bound test.
+Create an assertion from `check`.
 
-*   if there is no bound test (it’s nullish), makes sure `file` is a [vfile][]
-*   if the bound test is a glob string, checks if that glob matches `file.path`
-*   if the bound test is a normal string, checks if that is `file.basename` or
+###### Parameters
+
+*   `check` ([`Check`][api-check], optional)
+    — check
+
+###### Returns
+
+Assertion ([`Assert`][api-assert]).
+
+### `Assert`
+
+Check that a file is a `vfile` and passes a test (TypeScript type).
+
+###### Parameters
+
+*   `file` (`unknown`)
+    — file to check (typically [`VFile`][vfile])
+
+###### Returns
+
+Whether `file` is a file and matches a bound `check` (`boolean`).
+
+### `Check`
+
+Different ways to check for a specific file (TypeScript type).
+
+*   if check is a glob string, checks if that glob matches `file.path`
+*   if check is a normal string, checks if that is `file.basename` or
     `file.extname`
-*   if the bound test is a normal object, checks if the given file matches the
-    [`Spec`][spec]
-*   if the bound test is an array, all tests in it must pass
+*   if check is a function, checks whether that yields `true` when called
+*   if check is a normal object, checks if the given file matches the
+    [`CheckFields`][api-check-fields]
+*   if check is an array, all tests in it must pass
 
-### `Spec`
+###### Type
 
-A spec is an object describing fields to values.
-For each field in `spec`, if its value is `string`, there must be an equivalent
-field in the given file matching the value.
-If the value is `object`, it can have a `prefix` or `suffix` key, and the value
-in the given file must be a string, and it must start with `prefix` and/or end
-with `suffix`.
+```ts
+type Check =
+  | CheckFields
+  | CheckFile
+  | string
+  | null
+  | undefined
+  | Array<CheckFields | CheckFile | string | null | undefined>
+```
+
+### `CheckFields`
+
+Object describing fields to values (TypeScript type).
+
+Each key is a field in the file and each value is:
+
+*   `boolean` — whether the field exists or not
+*   `string` — exact value of that field
+*   `object` — start (prefix) and/or end (suffix) of the field
+
+###### Type
+
+```ts
+type FieldPartial = {
+  prefix?: string | null | undefined
+  suffix?: string | null | undefined
+}
+
+type CheckFields = Record<
+  string,
+  FieldPartial | string | boolean | null | undefined
+>
+```
+
+### `CheckFile`
+
+Check if a file passes a custom test (TypeScript type).
+
+###### Parameters
+
+*   `file` ([`VFile`][vfile])
+    — file to check
+
+###### Returns
+
+Whether the test passed for this file (`boolean`, optional).
 
 ## Types
 
 This package is fully typed with [TypeScript][].
-The extra types `Check`, `CheckFile`, and `Assert` are exported.
+It exports the additional types [`Assert`][api-assert], [`Check`][api-check],
+[`CheckFields`][api-check-fields], and [`CheckFile`][api-check-file].
 
 ## Compatibility
 
 Projects maintained by the unified collective are compatible with all maintained
 versions of Node.js.
-As of now, that is Node.js 12.20+, 14.14+, 16.0+, and 18.0+.
+As of now, that is Node.js 14.14+ and 16.0+.
 Our projects sometimes work with older versions, but this is not guaranteed.
 
 ## Contribute
@@ -206,6 +272,14 @@ abide by its terms.
 
 [vfile]: https://github.com/vfile/vfile
 
-[assertion]: #assertionfile
+[api-convert]: #convertcheck
 
-[spec]: #spec
+[api-is]: #isfile-check
+
+[api-assert]: #assert
+
+[api-check]: #check
+
+[api-check-fields]: #checkfields
+
+[api-check-file]: #checkfile
