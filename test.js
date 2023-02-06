@@ -2,9 +2,15 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {toVFile} from 'to-vfile'
 import {is} from './index.js'
+import * as mod from './index.js'
 
 test('is', function () {
-  /** @type {null} */
+  assert.deepEqual(
+    Object.keys(mod).sort(),
+    ['convert', 'is'],
+    'should expose the public api'
+  )
+
   const empty = null
   const file = toVFile()
   const index = toVFile('index.js')
