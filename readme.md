@@ -65,7 +65,7 @@ In browsers with [`esm.sh`][esmsh]:
 import {VFile} from 'to-vfile'
 import {is} from 'vfile-is'
 
-is(null, '.js') // => false
+is(undefined, '.js') // => false
 is({}, '.js') // => false
 
 is(new VFile({path: 'index.js'}), '.js') // => true
@@ -150,12 +150,12 @@ Different ways to check for a specific file (TypeScript type).
 
 ```ts
 type Check =
+  | Array<CheckFields | CheckFile | string | null | undefined>
   | CheckFields
   | CheckFile
   | string
   | null
   | undefined
-  | Array<CheckFields | CheckFile | string | null | undefined>
 ```
 
 ### `CheckFields`
@@ -178,7 +178,7 @@ type FieldPartial = {
 
 type CheckFields = Record<
   string,
-  FieldPartial | string | boolean | null | undefined
+  FieldPartial | boolean | string | null | undefined
 >
 ```
 

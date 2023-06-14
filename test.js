@@ -2,11 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {toVFile} from 'to-vfile'
 import {is} from './index.js'
-import * as mod from './index.js'
 
-test('is', function () {
+test('is', async function () {
   assert.deepEqual(
-    Object.keys(mod).sort(),
+    Object.keys(await import('./index.js')).sort(),
     ['convert', 'is'],
     'should expose the public api'
   )
@@ -54,7 +53,7 @@ test('is', function () {
 
   assert.throws(
     function () {
-      // @ts-ignore runtime.
+      // @ts-expect-error check that this is an error at runtime.
       is(readme, {stem: 1})
     },
     /^Error: Invalid spec `1`, expected `boolean`, `string`, or `object`/,
@@ -67,7 +66,7 @@ test('is', function () {
 
   assert.throws(
     function () {
-      // @ts-ignore runtime.
+      // @ts-expect-error check that this is an error at runtime.
       is(readme, 1)
     },
     /^Error: Expected function, string, array, or object as test/,
