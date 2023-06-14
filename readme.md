@@ -17,8 +17,8 @@
 *   [Install](#install)
 *   [Use](#use)
 *   [API](#api)
-    *   [`is(file, check?)`](#isfile-check)
     *   [`convert(check)`](#convertcheck)
+    *   [`is(file, check?)`](#isfile-check)
     *   [`Assert`](#assert)
     *   [`Check`](#check)
     *   [`CheckFields`](#checkfields)
@@ -39,7 +39,7 @@ Use this small utility if you find yourself repeating code for checking files.
 ## Install
 
 This package is [ESM only][esm].
-In Node.js (version 14.14+ and 16.0+), install with [npm][]:
+In Node.js (version 16+), install with [npm][]:
 
 ```sh
 npm install vfile-is
@@ -90,6 +90,19 @@ This package exports the identifiers [`convert`][api-convert] and
 [`is`][api-is].
 There is no default export.
 
+### `convert(check)`
+
+Create an assertion from `check`.
+
+###### Parameters
+
+*   `check` ([`Check`][api-check], optional)
+    — check
+
+###### Returns
+
+Assertion ([`Assert`][api-assert]).
+
 ### `is(file, check?)`
 
 Check if `file` is a specific file.
@@ -107,19 +120,6 @@ If you’re doing a lot of checks, use `convert`.
 ###### Returns
 
 Whether `file` is a file and matches `check` (`boolean`).
-
-### `convert(check)`
-
-Create an assertion from `check`.
-
-###### Parameters
-
-*   `check` ([`Check`][api-check], optional)
-    — check
-
-###### Returns
-
-Assertion ([`Assert`][api-assert]).
 
 ### `Assert`
 
@@ -165,8 +165,8 @@ Object describing fields to values (TypeScript type).
 Each key is a field in the file and each value is:
 
 *   `boolean` — whether the field exists or not
-*   `string` — exact value of that field
 *   `object` — start (prefix) and/or end (suffix) of the field
+*   `string` — exact value of that field
 
 ###### Type
 
@@ -203,10 +203,13 @@ It exports the additional types [`Assert`][api-assert], [`Check`][api-check],
 
 ## Compatibility
 
-Projects maintained by the unified collective are compatible with all maintained
+Projects maintained by the unified collective are compatible with maintained
 versions of Node.js.
-As of now, that is Node.js 14.14+ and 16.0+.
-Our projects sometimes work with older versions, but this is not guaranteed.
+
+When we cut a new major release, we drop support for unmaintained versions of
+Node.
+This means we try to keep the current release line, `vfile-is@^2`, compatible
+with Node.js 16.
 
 ## Contribute
 
@@ -236,9 +239,9 @@ abide by its terms.
 
 [downloads]: https://www.npmjs.com/package/vfile-is
 
-[size-badge]: https://img.shields.io/bundlephobia/minzip/vfile-is.svg
+[size-badge]: https://img.shields.io/badge/dynamic/json?label=minzipped%20size&query=$.size.compressedSize&url=https://deno.bundlejs.com/?q=vfile-is
 
-[size]: https://bundlephobia.com/result?p=vfile-is
+[size]: https://bundlejs.com/?q=vfile-is
 
 [sponsors-badge]: https://opencollective.com/unified/sponsors/badge.svg
 
