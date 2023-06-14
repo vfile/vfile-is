@@ -48,14 +48,14 @@ npm install vfile-is
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {is} from 'https://esm.sh/vfile-is@2'
+import {is} from 'https://esm.sh/vfile-is@3'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {is} from 'https://esm.sh/vfile-is@2?bundle'
+  import {is} from 'https://esm.sh/vfile-is@3?bundle'
 </script>
 ```
 
